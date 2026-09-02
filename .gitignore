@@ -1,0 +1,23 @@
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+flutter-web-dev.log
+flutter-web-dev-error.log
+
+# Local signing and secret material
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+ios/**/*.p8
+ios/**/*.p12
+.env
+.env.*
+!.env.example
+
+# IDE / OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store

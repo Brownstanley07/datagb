@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "860450210565",
+    "project_id": "datago-37e85",
+    "storage_bucket": "datago-37e85.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860450210565:android:c6d076e4b813895a0aad6c",
+        "android_client_info": {
+          "package_name": "com.datagobusiness.datago"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "860450210565-a71nsj4d2bsse0qlle8b8egvam7g6pv1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.datagobusiness.datago",
+            "certificate_hash": "1be3b69dc45c8bff7a60bfef3c90fe03120f8848"
+          }
+        },
+        {
+          "client_id": "860450210565-vtvj5ih9u3eduse4mjbhl8440ne9okag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhuUn_iZRfF9uBubqAm63UbTAHXfSDUiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "860450210565-vtvj5ih9u3eduse4mjbhl8440ne9okag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

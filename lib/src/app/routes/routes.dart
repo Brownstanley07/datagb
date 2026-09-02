@@ -1,0 +1,39 @@
+class BaseRoute {
+  // Splash Route
+  static const String splash = "/";
+  static const String license = "/license";
+  static const String onBoarding = "/onboarding";
+  static const String login = "/login";
+  static const String signUp = "/signUp";
+  static const String forgotPassword = "/forgotPassword";
+  static const String verifyOtp = "/verifyOtp";
+  static const String changePassword = "/changePassword";
+  static const String dashboard = "/dashboard";
+  static const String homeScreen = "/homeScreen";
+  static const String rankingBadge = "/rankingBadge";
+  static const String sendMoney = "/sendMoney";
+  static const String deposit = "/deposit";
+  static const String withdraw = "/withdraw";
+  static const String editWithdrawAccount = "/editWithdrawAccount";
+  static const String addNewWithdrawAccount = "/addNewWithdrawAccount";
+  static const String walletExchange = "/walletExchange";
+  static const String allSchema = "/allSchema";
+  static const String crowdSchema = "/crowdSchema";
+  static const String crowdSchemaPayment = "/crowdSchemaPayment";
+  static const String schemaHistory = "/schemaHistory";
+  static const String crowdSchemaHistory = "/crowdSchemaHistory";
+  static const String payNow = "/payNow";
+  static const String reward = "/rewards";
+  static const String referral = "/referral";
+  static const String settingsPasswordChange = "/settingsPasswordChange";
+  static const String kyc = "/kyc";
+  static const String allNotification = "/allNotification";
+  static const String allTransaction = "/allTransaction";
+  static const String profileSettings = "/profileSettings";
+  static const String myTicket = "/myTicket";
+  static const String createNewTicket = "/createNewTicket";
+  static const String emailVerification = "/emailVerification";
+  static const String emailVerificationOtp = "/emailVerificationOtp";
+  static const String twoFaVerification = "/twoFaVerification";
+  static const String twoFaVerificationOtp = "/twoFaVerificationOtp";
+}
