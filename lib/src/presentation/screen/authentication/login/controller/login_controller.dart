@@ -235,7 +235,7 @@ class LoginController extends GetxController {
       );
       final token = response.data?.token;
       if (response.status != true || token == null || token.isEmpty) {
-        ToastService.showError(response.message ?? 'Apple sign-in failed.');
+        ToastService.showError('Apple sign-in failed.');
         return;
       }
       await authPersistData.setAuthData(AuthData(token: token));
