@@ -39,6 +39,14 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>DataGo uses Face ID to securely unlock your saved account session.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>DataGo uses the camera when you choose to capture a profile or verification image.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>DataGo accesses your photos when you choose an image for your profile or verification.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>DataGo may save images only when you choose to export or save them.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>DataGo uses your location only when required to protect your account and verify activity.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
