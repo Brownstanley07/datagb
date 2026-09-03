@@ -77,7 +77,7 @@ class LoginScreen extends GetView<LoginController> {
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                'Welcome to DataGo',
+                                'Welcome to DataGB',
                                 maxLines: 1,
                                 softWrap: false,
                                 style: TextStyle(

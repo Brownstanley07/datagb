@@ -191,7 +191,7 @@ class _BrandFooter extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Text(
-        'DATAGO',
+        'DataGB',
         style: TextStyle(
           color: AppColors.primaryDark,
           fontSize: 11.sp,

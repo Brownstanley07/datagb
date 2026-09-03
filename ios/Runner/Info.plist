@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>DataGo</string>
+	<string>DataGB</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -26,7 +26,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>DataGo</string>
+	<string>DataGB</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -38,15 +38,15 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>DataGo uses Face ID to securely unlock your saved account session.</string>
+	<string>DataGB uses Face ID to securely unlock your saved account session.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>DataGo uses the camera when you choose to capture a profile or verification image.</string>
+	<string>DataGB uses the camera when you choose to capture a profile or verification image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>DataGo accesses your photos when you choose an image for your profile or verification.</string>
+	<string>DataGB accesses your photos when you choose an image for your profile or verification.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>DataGo may save images only when you choose to export or save them.</string>
+	<string>DataGB may save images only when you choose to export or save them.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>DataGo uses your location only when required to protect your account and verify activity.</string>
+	<string>DataGB uses your location only when required to protect your account and verify activity.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

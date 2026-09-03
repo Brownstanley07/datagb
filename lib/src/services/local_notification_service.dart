@@ -12,7 +12,7 @@ class LocalNotificationsService {
 
   static AndroidNotificationChannel get _androidChannel =>
       AndroidNotificationChannel(
-        'datago_notifications_v2',
+        'datagb_notifications_v2',
         'notification.channelName'.trns(),
         description: 'notification.channelDescription'.trns(),
         importance: Importance.max,
