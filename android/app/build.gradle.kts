@@ -12,6 +12,7 @@ val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
+val hasReleaseSigning = keystorePropertiesFile.exists()
 
 android {
     namespace = "com.datagobusiness.datago"
@@ -38,7 +39,7 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasReleaseSigning) {
             create("release") {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
@@ -50,9 +51,13 @@ android {
 
     buildTypes {
         release {
-            if (keystorePropertiesFile.exists()) {
-                signingConfig = signingConfigs.getByName("release")
+            if (!hasReleaseSigning) {
+                throw GradleException(
+                    "Play Store release builds require android/key.properties and the matching upload keystore. " +
+                        "Do not upload a debug-signed release bundle."
+                )
             }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

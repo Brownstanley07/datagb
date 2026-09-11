@@ -159,7 +159,11 @@ class SignupController extends GetxController {
           ToastService.showError("signUp.signUpController.tokenMissing".trns());
         }
       }
-    } catch (_) {
+    } catch (error) {
+      if (kDebugMode) print('Registration error: $error');
+      ToastService.showError(
+        'Account creation could not be completed. Please try again.',
+      );
     } finally {
       isSubmitting.value = false;
     }

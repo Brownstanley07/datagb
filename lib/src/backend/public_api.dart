@@ -37,34 +37,6 @@ class PublicApi {
     );
   }
 
-  Future<LoginResponseModel> googleLogin({required String idToken}) {
-    return client.request(
-      path: Links.googleLogin,
-      method: MethodType.post,
-      parse: LoginResponseModel.fromJson,
-      payload: {'id_token': idToken},
-    );
-  }
-
-  Future<LoginResponseModel> appleLogin({
-    required String identityToken,
-    required String authorizationCode,
-    String? email,
-    String? fullName,
-  }) {
-    return client.request(
-      path: Links.appleLogin,
-      method: MethodType.post,
-      parse: LoginResponseModel.fromJson,
-      payload: {
-        'identity_token': identityToken,
-        'authorization_code': authorizationCode,
-        if (email != null && email.isNotEmpty) 'email': email,
-        if (fullName != null && fullName.isNotEmpty) 'full_name': fullName,
-      },
-    );
-  }
-
   Future<ForgotPasswordResponseModel> forgotPassword({required String email}) {
     return client.request(
       path: Links.forgotPassword,

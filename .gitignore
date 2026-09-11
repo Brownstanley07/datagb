@@ -8,6 +8,9 @@ flutter-web-dev-error.log
 
 # Local signing and secret material
 android/key.properties
+upload-keystore.jks
+android/*.jks
+android/*.keystore
 android/app/*.jks
 android/app/*.keystore
 ios/**/*.p8

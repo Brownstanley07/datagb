@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:io';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../../../backend/auth_persist_data.dart';
 import '../../../../../backend/public_api.dart';
 import '../../../../../backend/secure_api_controller.dart';
@@ -21,13 +18,6 @@ import '../../../../../backend/auth_data.dart';
 import '../model/login_request_model.dart';
 
 class LoginController extends GetxController {
-  static const _googleWebClientId = String.fromEnvironment(
-    'GOOGLE_WEB_CLIENT_ID',
-    defaultValue:
-        '860450210565-vtvj5ih9u3eduse4mjbhl8440ne9okag.apps.googleusercontent.com',
-  );
-  bool _googleInitialized = false;
-
   ///* -- Dependencies --
   final PublicApi publicApi;
   final AuthPersistData authPersistData;
@@ -46,7 +36,6 @@ class LoginController extends GetxController {
   RxBool isLoading = false.obs;
   final RxBool isBiometricEnable = false.obs;
   final RxBool isBiometricAvailable = false.obs;
-  final RxBool showBiometricSetup = false.obs;
   final RxBool isPressed = false.obs;
   final RxBool rememberMe = false.obs;
 
@@ -57,8 +46,6 @@ class LoginController extends GetxController {
   ///* -- Biometric Data --
   final RxString biometricEmail = "".obs;
   final RxString biometricPassword = "".obs;
-  String? _pendingGoogleEmail;
-  String? _pendingGoogleToken;
 
   ///* -- Lifecycle Methods --
   @override
@@ -72,19 +59,12 @@ class LoginController extends GetxController {
 
   Future<void> openLegalPage({required bool privacy}) async {
     await settingsController.fetchSettings();
-    String url =
-        (privacy
-            ? settingsController.pageLinks.value?.privacyPolicy
-            : settingsController.pageLinks.value?.termsConditions) ??
-        '${Links.baseUrl.replaceFirst(RegExp(r'/api/?$'), '')}/${privacy ? 'privacy-policy' : 'terms-and-conditions'}';
-    // Keep legal links available even when an older backend omits page_links.
-    if (url.startsWith('http://')) {
-      url = url.replaceFirst('http://', 'https://');
-    }
-    if (url.trim().isEmpty) {
-      ToastService.showError('This page is not available right now.');
-      return;
-    }
+    final url = Links.legalPageUrl(
+      privacy: privacy,
+      apiValue: privacy
+          ? settingsController.pageLinks.value?.privacyPolicy
+          : settingsController.pageLinks.value?.termsConditions,
+    );
     Get.to(
       () => WebViewScreen(
         title: privacy ? 'Privacy Policy' : 'Terms & Conditions',
@@ -148,101 +128,9 @@ class LoginController extends GetxController {
       if (kDebugMode) {
         print('the error is $e');
       }
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> loginWithGoogle() async {
-    if (_googleWebClientId.isEmpty) {
-      ToastService.showError('Google sign-in is not configured.');
-      return;
-    }
-
-    isLoading.value = true;
-    try {
-      final google = GoogleSignIn.instance;
-      if (!_googleInitialized) {
-        await google.initialize(serverClientId: _googleWebClientId);
-        _googleInitialized = true;
-      }
-
-      final account = await google.authenticate();
-      final idToken = account.authentication.idToken;
-      if (idToken == null || idToken.isEmpty) {
-        throw const GoogleSignInException(
-          code: GoogleSignInExceptionCode.unknownError,
-          description: 'Google did not return an ID token.',
-        );
-      }
-
-      final response = await publicApi.googleLogin(idToken: idToken);
-      final token = response.data?.token;
-      if (response.status != true || token == null || token.isEmpty) {
-        ToastService.showError('Google sign-in failed.');
-        return;
-      }
-
-      await settingsController.saveLoggedInUserEmail(account.email);
-      await _setLogInState();
-      await authPersistData.setAuthData(AuthData(token: token));
-      await Get.put<NotificationApiService>(
-        NotificationApiService(),
-      ).postFcmToken();
-
-      final biometricToken = response.data?.biometricToken;
-      if (response.data?.isNewUser == true &&
-          isBiometricAvailable.value &&
-          biometricToken != null &&
-          biometricToken.isNotEmpty) {
-        _pendingGoogleEmail = account.email;
-        _pendingGoogleToken = biometricToken;
-        showBiometricSetup.value = true;
-        return;
-      }
-
-      await checkIsEmailVerified(email: account.email);
-    } on GoogleSignInException catch (error) {
-      if (error.code != GoogleSignInExceptionCode.canceled) {
-        ToastService.showError(error.description ?? 'Google sign-in failed.');
-      }
-    } catch (error) {
-      if (kDebugMode) print('Google sign-in error: $error');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> loginWithApple() async {
-    if (!Platform.isIOS) return;
-    isLoading.value = true;
-    try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+      ToastService.showError(
+        'Sign in could not be completed. Check your connection and try again.',
       );
-      final identityToken = credential.identityToken;
-      if (identityToken == null || identityToken.isEmpty) {
-        throw Exception('Apple did not return an identity token.');
-      }
-      final response = await publicApi.appleLogin(
-        identityToken: identityToken,
-        authorizationCode: credential.authorizationCode,
-        email: credential.email,
-        fullName: [credential.givenName, credential.familyName]
-            .whereType<String>()
-            .where((part) => part.isNotEmpty)
-            .join(' '),
-      );
-      final token = response.data?.token;
-      if (response.status != true || token == null || token.isEmpty) {
-        ToastService.showError('Apple sign-in failed.');
-        return;
-      }
-      await authPersistData.setAuthData(AuthData(token: token));
-      await checkIsEmailVerified(email: credential.email ?? '');
-    } catch (error) {
-      if (kDebugMode) print('Apple sign-in error: $error');
-      ToastService.showError('Apple sign-in failed.');
     } finally {
       isLoading.value = false;
     }
@@ -386,34 +274,6 @@ class LoginController extends GetxController {
       isBiometricEnable.value = false;
       await settingsController.saveBiometricEnableOrDisable(false);
     }
-  }
-
-  Future<void> enableBiometricsAfterGoogle() async {
-    final token = _pendingGoogleToken;
-    final email = _pendingGoogleEmail;
-    if (token == null || email == null) return;
-
-    isPressed.value = true;
-    final authenticated = await biometricAuthService
-        .authenticateWithBiometrics();
-    if (authenticated) {
-      await authPersistData.setBiometricAuthData(AuthData(token: token));
-      await settingsController.saveBiometricEnableOrDisable(true);
-      isBiometricEnable.value = true;
-      ToastService.showSuccess('Biometric sign-in enabled.');
-      await _finishPendingGoogleLogin();
-    }
-    isPressed.value = false;
-  }
-
-  Future<void> skipBiometricSetup() => _finishPendingGoogleLogin();
-
-  Future<void> _finishPendingGoogleLogin() async {
-    final email = _pendingGoogleEmail;
-    showBiometricSetup.value = false;
-    _pendingGoogleEmail = null;
-    _pendingGoogleToken = null;
-    if (email != null) await checkIsEmailVerified(email: email);
   }
 
   Future<void> _loadSavedEmail() async {

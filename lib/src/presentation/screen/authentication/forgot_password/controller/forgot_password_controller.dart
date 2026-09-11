@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import '../../../../../app/routes/routes.dart';
@@ -31,7 +32,11 @@ class ForgotPasswordController extends GetxController {
           arguments: {'email': emailController.text.trim()},
         );
       }
-    } catch (_) {
+    } catch (error) {
+      if (kDebugMode) print('Password reset error: $error');
+      ToastService.showError(
+        'Password reset could not be started. Please try again.',
+      );
     } finally {
       emailController.clear();
       isLoading.value = false;

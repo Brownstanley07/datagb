@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../../../common/widgets/extension/translation_extension.dart';
 import '../../../../../common/widgets/webview_screen/webview_screen.dart';
 
+import '../../../../../backend/links.dart';
 import '../../../../../utils/constants/app_colors.dart';
 import '../controller/signup_controller.dart';
 
@@ -57,13 +58,14 @@ class TeamsCondition extends StatelessWidget {
                       ..onTap = () => Get.to(
                         () => WebViewScreen(
                           title: 'signUp.privacyPolicy'.trns(),
-                          paymentUrl:
-                              controller
-                                  .settingsController
-                                  .pageLinks
-                                  .value
-                                  ?.privacyPolicy ??
-                              '',
+                          paymentUrl: Links.legalPageUrl(
+                            privacy: true,
+                            apiValue: controller
+                                .settingsController
+                                .pageLinks
+                                .value
+                                ?.privacyPolicy,
+                          ),
                         ),
                       ),
                   ),
@@ -78,13 +80,14 @@ class TeamsCondition extends StatelessWidget {
                       ..onTap = () => Get.to(
                         () => WebViewScreen(
                           title: 'signUp.termsAndCondition'.trns(),
-                          paymentUrl:
-                              controller
-                                  .settingsController
-                                  .pageLinks
-                                  .value
-                                  ?.termsConditions ??
-                              '',
+                          paymentUrl: Links.legalPageUrl(
+                            privacy: false,
+                            apiValue: controller
+                                .settingsController
+                                .pageLinks
+                                .value
+                                ?.termsConditions,
+                          ),
                         ),
                       ),
                   ),

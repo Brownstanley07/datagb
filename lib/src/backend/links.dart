@@ -1,12 +1,30 @@
 class Links {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://dev.globalfarmers.co/api',
+    defaultValue: 'https://api.datagobusiness.com',
+  );
+  static const String webUrl = String.fromEnvironment(
+    'WEB_BASE_URL',
+    defaultValue: 'https://datagobusiness.com',
   );
 
+  static String legalPageUrl({required bool privacy, String? apiValue}) {
+    final fallback =
+        '$webUrl/${privacy ? 'privacy-policy' : 'terms-and-conditions'}';
+    final raw = apiValue?.trim();
+    if (raw == null || raw.isEmpty) return fallback;
+
+    final uri = Uri.tryParse(raw);
+    if (uri == null || !uri.hasScheme) return fallback;
+
+    if (uri.host == Uri.parse(baseUrl).host) {
+      return Uri.parse(webUrl).replace(path: uri.path).toString();
+    }
+
+    return uri.scheme == 'http' ? raw.replaceFirst('http://', 'https://') : raw;
+  }
+
   static const String login = "/login";
-  static const String googleLogin = "/auth/google";
-  static const String appleLogin = "/auth/apple";
   static const String register = "/register";
   static const String forgotPassword = "/forgot-password";
   static const String verifyOtp = "/reset-verify-otp";

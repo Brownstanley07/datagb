@@ -13,10 +13,10 @@ class DioClient implements ApiClient {
       // Ensure Laravel returns API JSON errors (422/401/503) instead of
       // redirecting API requests to the web homepage.
       ..options.headers['Accept'] = 'application/json'
-      // Local Laravel routes are domain-scoped to dev.globalfarmers.co.
+      // Local Laravel routes are domain-scoped to api.datagobusiness.com.
       // ADB reverse reaches 127.0.0.1, so preserve the expected Host header.
       ..options.headers['Host'] = Uri.tryParse(baseUrl)?.host == '127.0.0.1'
-          ? 'dev.globalfarmers.co'
+          ? 'api.datagobusiness.com'
           : null
       ..options.followRedirects = false
       ..options.validateStatus = (status) {
