@@ -68,6 +68,7 @@ class Links {
   static const String transactionTypes = "/get-transaction-types";
   static const String allTransactions = "/transactions";
   static const String schemaHistory = "/invests/logs";
+  static const String reinvest = "/invests/reinvest";
   static const String crowdSchemaHistory = "/crowd-invests/logs";
   static const String investAutoRenew = "/invests/auto-renewal/";
   static const String user = "/user";

@@ -10,7 +10,9 @@ import 'package:intl/intl.dart';
 import '../../../../app/routes/routes.dart';
 import '../../../../common/widgets/exit_dialog/exit_dialog.dart';
 import '../../../../common/widgets/whatsapp_support/whatsapp_support_button.dart';
+import '../../../../common/widgets/community_links_card.dart';
 import '../../../../utils/helper/currency_formatter.dart';
+import '../../../../utils/helper/currency_amount_formatter.dart';
 import '../../../../utils/helper/transaction_icon_helper.dart';
 import '../../../../utils/snackbar/snackbar_helper.dart';
 import '../controller/home_controller.dart';
@@ -73,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           _pendingTransactionsCard(context),
                           SizedBox(height: 10.h),
                           _freeDataCard(context),
+                          SizedBox(height: 12.h),
+                          const CommunityLinksCard(),
                           SizedBox(height: 12.h),
                           _quickActionsGrid(context),
                         ],
@@ -638,7 +642,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       : pending != null
                       ? 'Your ${_formatData(pending.megabytes ?? 0)} request is being processed.'
                       : eligible
-                      ? 'Free data is ready. Tap Data under Quick Actions to claim it.'
+                      ? 'Free data is ready. Tap Redeem Data under Quick Actions to claim it.'
                       : '${threshold - balance} MB more needed to claim.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -665,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _scrollToQuickActionNotice() {
     ToastService.showInfo(
-      'Tap Data under Quick Actions to claim your free data.',
+      'Tap Redeem Data under Quick Actions to claim your free data.',
     );
   }
 
@@ -1207,7 +1211,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget legacyHeader(BuildContext context) {
-    final name = (controller.userInfo.value?.name ?? 'Investor').trim();
     final image = controller.userInfo.value?.image ?? '';
     final level = controller.ranking.value?.level;
     final levelName = controller.ranking.value?.name;
@@ -1379,7 +1382,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Theme-Adaptive Portfolio Balance Card
   Widget _balanceCard(BuildContext context) {
-    final amount = _number(controller.mainWallet.value);
+    final liquidAmount = _number(controller.mainWallet.value);
+    final activeInvestment =
+        controller.dataCount['active_investment_balance'] ?? 0;
+    final amount = liquidAmount + activeInvestment;
     final profit = _number(controller.profitWallet.value);
     const titleColor = Colors.white;
     const subtitleColor = Color(0xFFC7D7FF);
@@ -1536,34 +1542,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              // Earning Badge
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.22),
+              InkWell(
+                onTap: () => _showReinvestAmountDialog(context),
+                borderRadius: BorderRadius.circular(20.r),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.trending_up_rounded,
-                      color: Colors.white,
-                      size: 14.sp,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.22),
                     ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      'Profit',
-                      style: TextStyle(
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.autorenew_rounded,
                         color: Colors.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
+                        size: 14.sp,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Reinvest',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1637,6 +1649,172 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _showReinvestAmountDialog(BuildContext context) async {
+    if (!controller.canReinvest()) return;
+    final amountController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final balance = controller.earningBalanceAmount;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.r),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.autorenew_rounded,
+              size: 30.sp,
+              color: const Color(0xFF2457F5),
+            ),
+            SizedBox(width: 10.w),
+            Text(
+              'Reinvest Earnings',
+              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w900),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 360.w,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Add earnings directly to your current running investment.',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    height: 1.4,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(15.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2F6FF),
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                  child: Text(
+                    'Available: ${CurrencyFormatter.naira(balance.toStringAsFixed(2))}',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF2457F5),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                TextFormField(
+                  controller: amountController,
+                  autofocus: true,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: const [CurrencyAmountFormatter()],
+                  decoration: InputDecoration(
+                    labelText: 'Amount to reinvest',
+                    prefixText: '₦ ',
+                    hintText: '0.00',
+                    labelStyle: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 18.h,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                  ),
+                  validator: (value) {
+                    final amount = CurrencyAmountFormatter.parse(value ?? '');
+                    if (amount == null || amount <= 0) {
+                      return 'Enter a valid amount.';
+                    }
+                    if (amount > balance) {
+                      return 'Amount exceeds your Earning Balance.';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          Obx(
+            () => SizedBox(
+              height: 52.h,
+              child: TextButton(
+                onPressed: controller.isReinvesting.value
+                    ? null
+                    : () => Navigator.of(dialogContext).pop(),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Obx(
+            () => SizedBox(
+              height: 52.h,
+              child: FilledButton.icon(
+                onPressed: controller.isReinvesting.value
+                    ? null
+                    : () async {
+                        if (formKey.currentState?.validate() != true) return;
+                        final amount = CurrencyAmountFormatter.parse(
+                          amountController.text,
+                        )!;
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        final success = await controller.reinvestEarnings(
+                          amount,
+                        );
+                        if (success && dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                      },
+                icon: controller.isReinvesting.value
+                    ? SizedBox(
+                        width: 20.sp,
+                        height: 20.sp,
+                        child: const CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(Icons.autorenew_rounded, size: 22.sp),
+                label: Text(
+                  controller.isReinvesting.value
+                      ? 'Reinvesting...'
+                      : 'Reinvest',
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    await WidgetsBinding.instance.endOfFrame;
+    amountController.dispose();
   }
 
   Future<void> _showFundAccountSheet(BuildContext context) async {
@@ -2789,7 +2967,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final Color titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final actions = [
       _QuickActionData(
-        title: 'Data',
+        title: 'Redeem Data',
         subtitle: '',
         icon: Icons.wifi_rounded,
         bgColor: Colors.transparent,
@@ -2813,7 +2991,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () => BankAccountDialog.show(context),
       ),
       _QuickActionData(
-        title: 'Redeem',
+        title: 'Redeem Capital',
         subtitle: '',
         icon: Icons.lock_reset_rounded,
         bgColor: Colors.transparent,
@@ -2844,7 +3022,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: item.onTap,
                   borderRadius: BorderRadius.circular(18.r),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    constraints: BoxConstraints(minHeight: 88.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 3.w,
+                      vertical: 10.h,
+                    ),
                     decoration: BoxDecoration(
                       color: cardBg,
                       borderRadius: BorderRadius.circular(18.r),
@@ -2868,9 +3050,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(height: 8.h),
                         Text(
                           item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: titleColor,
-                            fontSize: 11.sp,
+                            fontSize: 10.5.sp,
+                            height: 1.15,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

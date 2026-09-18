@@ -63,6 +63,23 @@ class SignupScreen extends GetView<SignupController> {
                 ),
                 SizedBox(height: 16.h),
                 AuthTextField(
+                  label: 'Phone number',
+                  hintText: 'Enter your phone number',
+                  keyboardType: TextInputType.phone,
+                  controller: controller.phoneController,
+                  icon: Icons.phone_outlined,
+                  validator: FormValidation.validatePhone,
+                ),
+                SizedBox(height: 16.h),
+                AuthTextField(
+                  label: 'Referral code (optional)',
+                  hintText: 'Enter a referral code',
+                  controller: controller.referralController,
+                  icon: Icons.card_giftcard_outlined,
+                  isRequired: false,
+                ),
+                SizedBox(height: 16.h),
+                AuthTextField(
                   label: "signUp.password".trns(),
                   hintText: "signUp.passwordHint".trns(),
                   controller: controller.passwordController,

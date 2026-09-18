@@ -9,9 +9,9 @@ import '../../../utils/snackbar/snackbar_helper.dart';
 class WhatsAppSupportButton extends StatelessWidget {
   const WhatsAppSupportButton({super.key});
 
-  Future<void> _openSupport(SettingsController settings) async {
+  static Future<void> openSupport(SettingsController settings) async {
     // Settings can be changed from the admin panel while the app is open.
-    // Refresh before resolving the destination so phone/channel changes apply
+    // Refresh before resolving the destination so phone/group changes apply
     // immediately without requiring a reinstall or process restart.
     await settings.fetchSettings(force: true);
 
@@ -24,8 +24,8 @@ class WhatsAppSupportButton extends StatelessWidget {
     }
 
     final Uri? destination;
-    if (settings.whatsAppSupportType.value == 'channel') {
-      destination = Uri.tryParse(settings.whatsAppSupportChannel.value.trim());
+    if (settings.whatsAppSupportType.value == 'group') {
+      destination = Uri.tryParse(settings.whatsAppSupportGroup.value.trim());
     } else {
       final phone = settings.whatsAppSupportPhone.value.replaceAll(
         RegExp(r'[^0-9]'),
@@ -66,7 +66,7 @@ class WhatsAppSupportButton extends StatelessWidget {
       return Padding(
         padding: EdgeInsets.only(right: 8.w),
         child: GestureDetector(
-          onTap: () => _openSupport(settings),
+          onTap: () => openSupport(settings),
           child: Semantics(
             button: true,
             label: 'Open WhatsApp support',

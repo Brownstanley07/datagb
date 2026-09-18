@@ -10,6 +10,7 @@ import '../controller/pay_now_controller.dart';
 import '../../../../utils/constants/app_colors.dart';
 import '../../../../utils/helper/spin_loader.dart';
 import '../../../../utils/validators/form_validation.dart';
+import '../../../../utils/helper/currency_amount_formatter.dart';
 
 class PayNowScreen extends GetView<PayNowController> {
   const PayNowScreen({super.key});
@@ -79,6 +80,7 @@ class PayNowScreen extends GetView<PayNowController> {
                             hintText: controller.investmentAmountText,
                             controller: controller.amountController,
                             keyboardType: TextInputType.number,
+                            inputFormatters: const [CurrencyAmountFormatter()],
                             showImageIcon: true,
                             symbol: controller
                                 .settingsController
@@ -91,7 +93,7 @@ class PayNowScreen extends GetView<PayNowController> {
                                 return 'allSchema.payNowPage.amountRequired'
                                     .trns();
                               }
-                              final val = double.tryParse(v.trim());
+                              final val = CurrencyAmountFormatter.parse(v);
                               if (val == null) {
                                 return 'allSchema.payNowPage.enterValidNumber'
                                     .trns();
@@ -153,7 +155,7 @@ class PayNowScreen extends GetView<PayNowController> {
               'allSchema.payNowPage.charge'.trns(),
               '+ ${controller.charge.value.toStringAsFixed(2)} ${controller.settingsController.sideCurrency.value}',
             ),
-            Divider(color: AppColors.border),
+            const Divider(color: AppColors.border),
             SizedBox(height: 5.h),
             _buildReviewRow(
               'allSchema.payNowPage.totalPayable'.trns(),
@@ -232,16 +234,14 @@ class PayNowScreen extends GetView<PayNowController> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 16.h, bottom: 10.h),
-                  child: Divider(
-                    color: AppColors.border,
-                    height: 0.h,
-                  ),
+                  child: Divider(color: AppColors.border, height: 0.h),
                 ),
                 Expanded(
                   child: ListView(
                     shrinkWrap: true,
                     children: controller.walletOptions.map((wallet) {
-                      final isSelected = wallet == controller.selectedWallet.value;
+                      final isSelected =
+                          wallet == controller.selectedWallet.value;
                       return ListTile(
                         tileColor: isSelected
                             ? AppColors.primary.withValues(alpha: .12)
@@ -316,16 +316,14 @@ class PayNowScreen extends GetView<PayNowController> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 16.h, bottom: 10.h),
-                  child: Divider(
-                    color: AppColors.border,
-                    height: 0.h,
-                  ),
+                  child: Divider(color: AppColors.border, height: 0.h),
                 ),
                 Expanded(
                   child: ListView(
                     shrinkWrap: true,
                     children: controller.paymentGateways.map((gateway) {
-                      final isSelected = gateway == controller.selectedGateway.value;
+                      final isSelected =
+                          gateway == controller.selectedGateway.value;
                       return ListTile(
                         tileColor: isSelected
                             ? AppColors.primary.withValues(alpha: .12)

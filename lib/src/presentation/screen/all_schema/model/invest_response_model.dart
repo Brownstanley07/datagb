@@ -23,8 +23,20 @@ class Data {
   Transaction? transaction;
   Invest? invest;
   Gateway? gateway;
+  ReinvestWallets? wallets;
+  double? totalInvestment;
+  double? activeInvestmentBalance;
+  int? freeDataBalance;
 
-  Data({this.transaction, this.invest, this.gateway});
+  Data({
+    this.transaction,
+    this.invest,
+    this.gateway,
+    this.wallets,
+    this.totalInvestment,
+    this.activeInvestmentBalance,
+    this.freeDataBalance,
+  });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     transaction: json["transaction"] == null
@@ -32,12 +44,41 @@ class Data {
         : Transaction.fromJson(json["transaction"]),
     invest: json["invest"] == null ? null : Invest.fromJson(json["invest"]),
     gateway: json["gateway"] == null ? null : Gateway.fromJson(json["gateway"]),
+    wallets: json["wallets"] == null
+        ? null
+        : ReinvestWallets.fromJson(json["wallets"]),
+    totalInvestment: (json["total_investment"] as num?)?.toDouble(),
+    activeInvestmentBalance: (json["active_investment_balance"] as num?)
+        ?.toDouble(),
+    freeDataBalance: (json["free_data_balance"] as num?)?.toInt(),
   );
 
   Map<String, dynamic> toJson() => {
     "transaction": transaction?.toJson(),
     "invest": invest?.toJson(),
     "gateway": gateway?.toJson(),
+    "wallets": wallets?.toJson(),
+    "total_investment": totalInvestment,
+    "active_investment_balance": activeInvestmentBalance,
+    "free_data_balance": freeDataBalance,
+  };
+}
+
+class ReinvestWallets {
+  final String? mainWallet;
+  final String? profitWallet;
+
+  ReinvestWallets({this.mainWallet, this.profitWallet});
+
+  factory ReinvestWallets.fromJson(Map<String, dynamic> json) =>
+      ReinvestWallets(
+        mainWallet: json['main_wallet']?.toString(),
+        profitWallet: json['profit_wallet']?.toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+    'main_wallet': mainWallet,
+    'profit_wallet': profitWallet,
   };
 }
 
@@ -96,11 +137,11 @@ class Invest {
   factory Invest.fromJson(Map<String, dynamic> json) => Invest(
     id: json["id"],
     investAmount: json["invest_amount"],
-    interest: json["interest"],
+    interest: _asNum(json["interest"]),
     interestType: json["interest_type"],
     returnType: json["return_type"],
     returnInterestType: json["return_interest_type"],
-    numberOfPeriod: json["number_of_period"],
+    numberOfPeriod: _asNum(json["number_of_period"])?.toInt(),
     lastProfitTime: json["last_profit_time"],
     nextProfitTime: json["next_profit_time"] == null
         ? null
@@ -116,6 +157,11 @@ class Invest {
         ? null
         : DateTime.parse(json["updated_at"]),
   );
+
+  static num? _asNum(dynamic value) {
+    if (value is num) return value;
+    return num.tryParse(value?.toString() ?? '');
+  }
 
   Map<String, dynamic> toJson() => {
     "id": id,

@@ -25,7 +25,8 @@ class SettingsController extends GetxService {
   RxBool isWhatsAppSupportEnabled = true.obs;
   RxString whatsAppSupportType = 'phone'.obs;
   RxString whatsAppSupportPhone = ''.obs;
-  RxString whatsAppSupportChannel = ''.obs;
+  RxString whatsAppSupportGroup = ''.obs;
+  RxString telegramChannelUrl = ''.obs;
 
   bool _isFetched = false;
 
@@ -206,7 +207,8 @@ class SettingsController extends GetxService {
         isWhatsAppSupportEnabled.value = support?.enabled ?? true;
         whatsAppSupportType.value = support?.type ?? 'phone';
         whatsAppSupportPhone.value = support?.phone ?? '';
-        whatsAppSupportChannel.value = support?.channelUrl ?? '';
+        whatsAppSupportGroup.value = support?.groupUrl ?? '';
+        telegramChannelUrl.value = response.data?.telegramChannelUrl ?? '';
         _updateCurrencySettings(response.data?.settings ?? []);
         _isFetched = true;
       }

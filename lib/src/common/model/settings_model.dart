@@ -18,12 +18,14 @@ class Data {
   PageLinks? pageLinks;
   bool onboardingEnabled;
   WhatsAppSupport? whatsappSupport;
+  String? telegramChannelUrl;
 
   Data({
     this.settings,
     this.pageLinks,
     this.onboardingEnabled = true,
     this.whatsappSupport,
+    this.telegramChannelUrl,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -37,6 +39,7 @@ class Data {
     whatsappSupport: json['whatsapp_support'] == null
         ? null
         : WhatsAppSupport.fromJson(json['whatsapp_support']),
+    telegramChannelUrl: json['telegram_channel_url']?.toString(),
   );
 }
 
@@ -44,13 +47,13 @@ class WhatsAppSupport {
   final bool enabled;
   final String type;
   final String? phone;
-  final String? channelUrl;
+  final String? groupUrl;
 
   const WhatsAppSupport({
     required this.enabled,
     required this.type,
     this.phone,
-    this.channelUrl,
+    this.groupUrl,
   });
 
   factory WhatsAppSupport.fromJson(Map<String, dynamic> json) =>
@@ -58,7 +61,7 @@ class WhatsAppSupport {
         enabled: _asBool(json['enabled']),
         type: json['type']?.toString() ?? 'phone',
         phone: json['phone']?.toString(),
-        channelUrl: json['channel_url']?.toString(),
+        groupUrl: json['group_url']?.toString(),
       );
 }
 

@@ -147,14 +147,57 @@ class ReferralScreen extends GetView<ReferralController> {
             ),
           ),
           SizedBox(height: 18.h),
+          Text(
+            'YOUR REFERRAL CODE',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.72),
+              fontSize: 10.5.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    controller.referralCode.value.isEmpty
+                        ? 'Unavailable'
+                        : controller.referralCode.value,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Copy referral code',
+                  onPressed: controller.copyReferralCode,
+                  icon: const Icon(Icons.copy_rounded, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12.h),
           SizedBox(
             height: 46.h,
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: controller.shareReferralLink,
+              onPressed: controller.shareReferralCode,
               icon: Icon(Icons.ios_share_rounded, color: _blue, size: 18.sp),
               label: Text(
-                'Share Invite',
+                'Share Referral Code',
                 style: TextStyle(
                   color: _blue,
                   fontSize: 14.sp,
@@ -254,7 +297,7 @@ class ReferralScreen extends GetView<ReferralController> {
           _rule(
             Icons.link_rounded,
             'Share',
-            'Invite through the app share menu.',
+            'Share your referral code with a friend.',
             title,
             muted,
           ),
@@ -262,7 +305,7 @@ class ReferralScreen extends GetView<ReferralController> {
           _rule(
             Icons.person_add_alt_1_rounded,
             'Signup',
-            'They join using your invite.',
+            'They enter your code when creating their account.',
             title,
             muted,
           ),
@@ -368,7 +411,7 @@ class ReferralScreen extends GetView<ReferralController> {
               ? Padding(
                   padding: EdgeInsets.all(22.w),
                   child: Text(
-                    'No referral activity yet. Share your invite to get started.',
+                    'No referral activity yet. Share your referral code to get started.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: muted, fontSize: 12.sp),
                   ),

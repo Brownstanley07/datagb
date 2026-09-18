@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../presentation/screen/all_notification/model/notification_response_model.dart';
 import '../presentation/screen/all_schema/model/all_schema_response_model.dart';
 import '../presentation/screen/all_schema/model/invest_response_model.dart';
+import '../presentation/screen/home/model/reinvest_response_model.dart';
 import '../presentation/screen/all_transaction/model/all_transaction_response_model.dart';
 import '../presentation/screen/all_transaction/model/transaction_type_response_model.dart';
 import '../presentation/screen/authentication/forgot_password/model/forgot_password_model.dart';
@@ -274,6 +275,15 @@ class SecureApi {
         "is_auto_renewal": isAutoRenewal,
         "is_compounding": isCompounding,
       },
+    );
+  }
+
+  Future<ReinvestResponseModel> reinvestEarnings({required double amount}) {
+    return client.request(
+      path: Links.reinvest,
+      method: MethodType.post,
+      parse: ReinvestResponseModel.fromJson,
+      payload: {"amount": amount},
     );
   }
 

@@ -58,7 +58,7 @@
   "logIn": {
     "title": "Sign In",
     "welcomeText": "Welcome Back!",
-    "subTitle": "Sign in to continue with HyipRio User Panel",
+    "subTitle": "Sign in to continue with DataGB User Panel",
     "emailLabel": "Email Or Username",
     "emailHint": "Enter your email or username",
     "password": "Password",
@@ -82,7 +82,7 @@
   "signUp": {
     "title": "Sign Up",
     "welcomeText": "Create an account",
-    "subTitle": "Register to continue with HyipRio",
+    "subTitle": "Register to continue with DataGB",
     "firstName": "First Name",
     "firstNameHint": "Enter your first name",
     "lastName": "Last Name",
@@ -143,7 +143,7 @@
     },
     "changePassword": {
       "title": "New Password",
-      "subTitle": "Change your password to continue with HyipRio User Panel",
+      "subTitle": "Change your password to continue with DataGB User Panel",
       "passwordLabel": "Password",
       "passwordHint": "Enter your password",
       "confirmPasswordLabel": "Confirm Password",

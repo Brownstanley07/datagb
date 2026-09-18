@@ -14,6 +14,7 @@ import '../model/invest_response_model.dart';
 import '../widgets/schema_review_details.dart';
 import '../../deposit/model/deposit_method_response.dart';
 import '../../home/controller/home_controller.dart';
+import '../../../../utils/helper/currency_amount_formatter.dart';
 
 class PayNowController extends GetxController {
   final SecureApiController secureApiController;
@@ -91,13 +92,17 @@ class PayNowController extends GetxController {
     if (arguments is Map && arguments['wallet'] is String) {
       selectWallet(arguments['wallet'] as String);
     }
-    _initializeInvestmentAmount();
+    final reinvestAmount = arguments is Map
+        ? (arguments['reinvestAmount'] as num?)?.toDouble()
+        : null;
+    _initializeInvestmentAmount(reinvestAmount);
     loadPaymentMethods();
 
     // Listen for changes in amount for non-fixed schemas
     if (!isFixedInvestment) {
       amountController.addListener(() {
-        investmentAmount.value = double.tryParse(amountController.text) ?? 0.0;
+        investmentAmount.value =
+            CurrencyAmountFormatter.parse(amountController.text) ?? 0.0;
       });
     }
 
@@ -201,7 +206,12 @@ class PayNowController extends GetxController {
 
   //===================== Private Helper Methods ===================
 
-  void _initializeInvestmentAmount() {
+  void _initializeInvestmentAmount(double? reinvestAmount) {
+    if (reinvestAmount != null) {
+      investmentAmount.value = reinvestAmount;
+      amountController.text = CurrencyAmountFormatter.format(reinvestAmount);
+      return;
+    }
     if (isFixedInvestment) {
       final amount = double.tryParse(selectedSchema.investAmount.toString());
       investmentAmount.value = amount ?? 0.0;

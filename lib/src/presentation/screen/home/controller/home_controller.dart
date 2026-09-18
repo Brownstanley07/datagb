@@ -53,6 +53,7 @@ class HomeController extends GetxController {
   RxBool isRedeemingCapital = false.obs;
   RxBool isWithdrawingFunds = false.obs;
   RxBool isSubmittingDeposit = false.obs;
+  RxBool isReinvesting = false.obs;
   final pendingCapitalClaim = Rxn<PendingCapitalClaim>();
   final capitalClaimRemaining = Duration.zero.obs;
   Timer? _capitalTimer;
@@ -441,6 +442,81 @@ class HomeController extends GetxController {
   void onInvest() {
     Get.toNamed(BaseRoute.allSchema);
   }
+
+  bool canReinvest() {
+    if (_walletAmount(profitWallet.value) <= 0) {
+      ToastService.showInfo('You do not have earnings available to reinvest.');
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> reinvestEarnings(double amount) async {
+    if (isReinvesting.value) return false;
+    isReinvesting.value = true;
+    await secureApiController.ensureInitialized();
+    try {
+      final response = await secureApiController.api!.reinvestEarnings(
+        amount: amount,
+      );
+      if (response.status == true) {
+        final updatedWallets = response.data?.wallets;
+        if (updatedWallets?.mainWallet != null) {
+          mainWallet.value = updatedWallets!.mainWallet!;
+        }
+        if (updatedWallets?.profitWallet != null) {
+          profitWallet.value = updatedWallets!.profitWallet!;
+        }
+        if (updatedWallets != null) {
+          // Keep the aggregate wallet model in sync for every widget that
+          // reads it instead of the individual observable strings.
+          wallets.value = Wallets(
+            mainWallet: updatedWallets.mainWallet ?? mainWallet.value,
+            profitWallet: updatedWallets.profitWallet ?? profitWallet.value,
+          );
+        }
+        final totalInvestment = response.data?.totalInvestment;
+        if (totalInvestment != null) {
+          dataCount['total_investment'] = totalInvestment;
+        }
+        final activeInvestmentBalance = response.data?.activeInvestmentBalance;
+        if (activeInvestmentBalance != null) {
+          dataCount['active_investment_balance'] = activeInvestmentBalance;
+        }
+        dataCount.refresh();
+        final freeDataBalance = response.data?.freeDataBalance;
+        if (freeDataBalance != null) {
+          dataBalanceMb.value = freeDataBalance;
+        }
+        ToastService.showSuccess(
+          response.message ?? 'Earnings reinvested successfully.',
+        );
+        // The response above is the immediate source of truth. Refresh the
+        // remaining dashboard sections after the dialog can close.
+        unawaited(refreshData());
+        return true;
+      }
+      ToastService.showError(
+        response.message ?? 'Unable to reinvest earnings.',
+      );
+    } catch (e) {
+      if (kDebugMode) print(e);
+      ToastService.showError(
+        'The reinvestment response could not be processed. Please try again.',
+      );
+    } finally {
+      isReinvesting.value = false;
+    }
+    return false;
+  }
+
+  double get earningBalanceAmount => _walletAmount(profitWallet.value);
+
+  double _walletAmount(String value) =>
+      double.tryParse(
+        value.replaceAll(',', '').replaceAll(RegExp(r'[^0-9.\-]'), ''),
+      ) ??
+      0;
 
   void onSeeAllTransactions() {
     Get.toNamed(BaseRoute.allTransaction);

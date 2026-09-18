@@ -5,18 +5,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../backend/auth_data.dart';
 import '../../../../../backend/auth_persist_data.dart';
 import '../../../../../backend/public_api.dart';
-import '../../../../../backend/secure_api_controller.dart';
 import '../../../../../common/controller/auth_controller/auth_controller.dart';
 import '../../../../../common/controller/registration_field_controller.dart/registration_field_controller.dart';
 import '../../../../../common/controller/settings_controller/settings_controller.dart';
-import '../../../../../common/controller/user_controller/user_controller.dart';
 import '../../../../../common/model/country_model.dart';
 import '../../../../../common/model/registration_field.dart';
 import '../../../../../common/widgets/extension/translation_extension.dart';
-import '../../../../../services/notification_api_service.dart';
 import '../../../../../utils/snackbar/snackbar_helper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -135,9 +131,14 @@ class SignupController extends GetxController {
       formData.fields.addAll([
         MapEntry("full_name", fullNameController.text.trim()),
         MapEntry("email", emailController.text.trim()),
+        MapEntry("phone", phoneController.text.trim()),
         MapEntry("password", passwordController.text),
         MapEntry("password_confirmation", confirmPasswordController.text),
       ]);
+      final referralCode = referralController.text.trim();
+      if (referralCode.isNotEmpty) {
+        formData.fields.add(MapEntry('invite', referralCode));
+      }
 
       final response = await publicApi.register(request: formData);
 
@@ -145,20 +146,35 @@ class SignupController extends GetxController {
         await settingsController.saveBiometricEnableOrDisable(false);
         await SettingsController.deleteLoggedInUserEmail();
         await SettingsController.deleteLoggedInUserPassword();
-
-        final token = response.data?.token;
-
-        if (token != null) {
-          authPersistData.deleteAuthData();
-          await authPersistData.setAuthData(AuthData(token: token));
-          await Get.put<NotificationApiService>(
-            NotificationApiService(),
-          ).postFcmToken();
-          await checkIsEmailVerified();
-        } else {
-          ToastService.showError("signUp.signUpController.tokenMissing".trns());
-        }
+        await authPersistData.deleteAuthData();
+        isSubmitting.value = false;
+        await Get.dialog<void>(
+          PopScope(
+            canPop: false,
+            child: AlertDialog(
+              title: const Text('Account created'),
+              content: const Text(
+                'Your account has been created successfully!\n\n'
+                'You can now log in and enjoy 3% daily profit plus free internet data bonuses on every deposit.\n\n'
+                'Log in now and get started!',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    authController.toggleToLogin();
+                    Get.back();
+                    Get.offAllNamed(BaseRoute.login);
+                  },
+                  child: const Text('Log in now'),
+                ),
+              ],
+            ),
+          ),
+          barrierDismissible: false,
+        );
       }
+    } on dio.DioException {
+      // The API interceptor already shows the server's validation message.
     } catch (error) {
       if (kDebugMode) print('Registration error: $error');
       ToastService.showError(
@@ -166,59 +182,6 @@ class SignupController extends GetxController {
       );
     } finally {
       isSubmitting.value = false;
-    }
-  }
-
-  Future<void> checkIsEmailVerified() async {
-    try {
-      final secureApiController = Get.put(SecureApiController());
-      final userController = Get.put(
-        UserController(secureApiController: secureApiController),
-      );
-      await userController.loadUser();
-      final isEmailVerified = settingsController.isEmailVerified.value;
-      final emailVerifiedAt = userController.user.value?.emailVerifiedAt;
-      if (kDebugMode) {
-        print(
-          'isEmailVerified: $isEmailVerified emailVerifiedAt: $emailVerifiedAt',
-        );
-      }
-      if (isEmailVerified == true && emailVerifiedAt == null) {
-        final userEmail = emailController.text.trim();
-
-        if (userEmail.isNotEmpty) {
-          final response = await secureApiController.api!.emailVerification(
-            email: userEmail,
-          );
-
-          if (response.status == true) {
-            Get.toNamed(
-              BaseRoute.emailVerificationOtp,
-              arguments: {'email': userEmail},
-            );
-            ToastService.showSuccess(response.message.toString());
-          } else {
-            Get.toNamed(
-              BaseRoute.emailVerificationOtp,
-              arguments: {'email': userEmail},
-            );
-            ToastService.showError(response.message.toString());
-          }
-        } else {
-          ToastService.showError(
-            "signUp.signUpController.userEmailNotFound".trns(),
-          );
-        }
-      } else {
-        ToastService.showSuccess(
-          "signUp.signUpController.registrationSuccess".trns(),
-        );
-        Get.offAllNamed(BaseRoute.dashboard);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('the error is $e');
-      }
     }
   }
 

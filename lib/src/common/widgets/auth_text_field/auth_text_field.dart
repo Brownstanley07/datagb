@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 
 import '../../../utils/constants/app_colors.dart';
 
@@ -25,6 +26,7 @@ class AuthTextField extends StatelessWidget {
   final List<String>? autofillHints;
   final VoidCallback? onEditingComplete;
   final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AuthTextField({
     super.key,
@@ -51,6 +53,7 @@ class AuthTextField extends StatelessWidget {
     this.autofillHints,
     this.onEditingComplete,
     this.textInputAction,
+    this.inputFormatters,
   });
 
   @override
@@ -92,6 +95,7 @@ class AuthTextField extends StatelessWidget {
           autofillHints: autofillHints,
           onEditingComplete: onEditingComplete,
           textInputAction: textInputAction,
+          inputFormatters: inputFormatters,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           style: TextStyle(
             color: dark ? Colors.white : AppColors.textPrimary,

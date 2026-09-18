@@ -26,6 +26,10 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
   Widget build(BuildContext context) {
     final arguments = Get.arguments;
     final fundingFlow = arguments is Map && arguments['fundingFlow'] == true;
+    final reinvestFlow = arguments is Map && arguments['reinvestFlow'] == true;
+    final reinvestAmount = arguments is Map
+        ? (arguments['reinvestAmount'] as num?)?.toDouble()
+        : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -71,7 +75,9 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          fundingFlow
+                          reinvestFlow
+                              ? 'Reinvest Earnings'
+                              : fundingFlow
                               ? 'Fund & Invest'
                               : 'Available Investments',
                           style: TextStyle(
@@ -83,7 +89,9 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          fundingFlow
+                          reinvestFlow
+                              ? 'Choose a plan for your available earnings'
+                              : fundingFlow
                               ? 'Review details & fund your preferred plan'
                               : 'Explore high-yielding plans tailored for you',
                           style: TextStyle(fontSize: 11.5.sp, color: _muted),
@@ -212,8 +220,13 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: controller.schemas.length,
                           separatorBuilder: (_, __) => SizedBox(height: 14.h),
-                          itemBuilder: (_, i) =>
-                              _planCard(controller.schemas[i], i, fundingFlow),
+                          itemBuilder: (_, i) => _planCard(
+                            controller.schemas[i],
+                            i,
+                            fundingFlow,
+                            reinvestFlow,
+                            reinvestAmount,
+                          ),
                         ),
                     ],
                   ),
@@ -337,7 +350,13 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
   }
 
   /// Modern Investment Plan Card
-  Widget _planCard(Schema plan, int index, bool fundingFlow) {
+  Widget _planCard(
+    Schema plan,
+    int index,
+    bool fundingFlow,
+    bool reinvestFlow,
+    double? reinvestAmount,
+  ) {
     final minimum = plan.amountRange == 'fixed'
         ? plan.fixedAmount
         : plan.minAmount;
@@ -485,7 +504,17 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
             width: double.infinity,
             height: 46.h,
             child: ElevatedButton(
-              onPressed: fundingFlow
+              onPressed: reinvestFlow
+                  ? () => Get.toNamed(
+                      BaseRoute.payNow,
+                      arguments: {
+                        'schema': plan,
+                        'wallet': 'profit',
+                        'reinvestAmount': reinvestAmount,
+                        'reinvestFlow': true,
+                      },
+                    )
+                  : fundingFlow
                   ? () => _showDepositSheet(plan)
                   : () => _chooseSource(plan),
               style: ElevatedButton.styleFrom(
@@ -499,7 +528,7 @@ class AllSchemaScreen extends GetView<AllSchemaController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Invest Now',
+                    reinvestFlow ? 'Reinvest Now' : 'Invest Now',
                     style: TextStyle(
                       fontSize: 13.5.sp,
                       fontWeight: FontWeight.w700,

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../backend/secure_api_controller.dart';
-import '../../../../backend/links.dart';
 import '../../../../common/widgets/extension/translation_extension.dart';
 import '../../../../utils/snackbar/snackbar_helper.dart';
 
@@ -21,7 +21,6 @@ class ReferralController extends GetxController {
 
   RxBool isLoading = false.obs;
   Rxn<Data> referral = Rxn<Data>();
-  RxString referralLink = "".obs;
   RxString referralCode = "".obs;
   RxString totalReferralPoint = "".obs;
   RxSet<int> expanded = <int>{}.obs;
@@ -48,7 +47,6 @@ class ReferralController extends GetxController {
       if (response.status == true) {
         referral.value = response.data;
         referralCode.value = response.data?.code ?? "";
-        referralLink.value = _websiteReferralUrl(response.data);
         tree.assignAll([response.data?.tree ?? Tree()]);
         totalReferralPoint.value = response.data?.totalReferralPoint ?? "";
         general.value = response.data?.referralLogs?.general ?? [];
@@ -69,27 +67,29 @@ class ReferralController extends GetxController {
     }
   }
 
-  String get websiteReferralLink => referralLink.value;
-
-  void shareReferralLink() {
-    if (referralCode.value.isNotEmpty && referralLink.value.isNotEmpty) {
-      SharePlus.instance.share(ShareParams(text: websiteReferralLink));
+  void shareReferralCode() {
+    if (referralCode.value.isNotEmpty) {
+      SharePlus.instance.share(
+        ShareParams(
+          text:
+              'Use my referral code ${referralCode.value} when creating your DataGB account.',
+        ),
+      );
     } else {
       ToastService.showInfo(
-        'referral.controller.linkUnavailable'.trns(),
+        'Your referral code is not available yet.',
         title: 'referral.controller.errorTitle'.trns(),
       );
     }
   }
 
-  String _websiteReferralUrl(Data? data) {
-    final directLink = data?.link?.trim() ?? '';
-    if (directLink.startsWith('http')) return directLink;
-
-    final code = data?.code?.trim() ?? '';
-    if (code.isEmpty) return '';
-
-    final siteUrl = Links.baseUrl.replaceFirst(RegExp(r'/api/?$'), '');
-    return '$siteUrl/register?invite=${Uri.encodeComponent(code)}';
+  Future<void> copyReferralCode() async {
+    final code = referralCode.value.trim();
+    if (code.isEmpty) {
+      ToastService.showInfo('Your referral code is not available yet.');
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: code));
+    ToastService.showSuccess('Referral code copied.');
   }
 }
